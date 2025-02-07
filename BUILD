@@ -1,10 +1,27 @@
-load("@pypi//:requirements.bzl", "requirement")
-load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
+load("@pypi//:requirements.bzl", "requirement")
 load("@rules_oci//oci:defs.bzl", "oci_load", "oci_push")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("//:py_layer.bzl", "py_oci_image")
 
 package(default_visibility = ["//flask_bazel_sample:__subpackages__"])
+
+exports_files(
+    [
+        ".ruff.toml",
+    ],
+    visibility = ["//tools/lint:lint_access_file_group"],  #lint file group
+)
+
+alias(
+    name = "format",
+    actual = "//tools/format",
+)
+
+py_library(
+    name = "all_files",
+    srcs = glob(["**/*.py"]),
+)
 
 py_binary(
     name = "flask_bazel_sample",
@@ -12,7 +29,7 @@ py_binary(
     main = "app.py",
     deps = [
         "@pypi//flask",
-    ]
+    ],
 )
 
 py_test(

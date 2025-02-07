@@ -1,0 +1,30 @@
+exclude = [
+    ".git",
+    ".ruff_cache",
+    ".pytest_cache",
+    "venv",
+    "node_modules",
+    "bazel-out",
+    "bazel-bin",
+    "build",
+    "dist",
+]
+
+line-length = 88
+indent-width = 4
+
+target-version = "py311"
+preview = true
+
+[lint]
+select = ["E", "F", "W"]
+ignore = []
+
+[format]
+quote-style = "double"
+
+indent-style = "space"
+
+skip-magic-trailing-comma = false
+
+line-ending = "auto"
