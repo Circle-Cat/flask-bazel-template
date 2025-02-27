@@ -60,12 +60,12 @@ else
 fi
 
 # Run linters
-set +e  # catch non-zero exit
-bazel build ${args[@]} $@
-exit_code=$?  # get Bazel exit mode
-set -e  # restore default mode
+set +e  # Catch non-zero exit
+bazel --max_idle_secs=10 build ${args[@]} $@
+exit_code=$?  # Get Bazel exit mode
+set -e  # Restore default mode
 
-# if Bazel returns 0 mode，exit
+# If Bazel returns 0 mode，exit
 if [ $exit_code -ne 0 ]; then
     echo "Linting failed. Exiting."
     exit $exit_code
@@ -74,16 +74,22 @@ fi
 # jq on windows outputs CRLF which breaks this script
 valid_reports=$("$JQ_CMD" --arg ext .out --raw-output "$filter" "$buildevents" | tr -d '\r')
 
-# Show the results.
+lint_failed=0  # Used to check whether lint passes tests
+
+# Show the results and check whether lint passed tests
 while IFS= read -r report; do
 	# Exclude coverage reports, and check if the output is empty.
 	if [[ "$report" == *coverage.dat ]] || [[ ! -s "$report" ]]; then
-		# Report is empty. No linting errors.
+		# Report is empty.
 		continue
 	fi
 	echo "From ${report}:"
 	cat "${report}"
-	echo
+
+	# Check whether report has "All checks passed!"
+	if ! grep -q "All checks passed!" "${report}"; then
+		lint_failed=1
+	fi
 done <<<"$valid_reports"
 
 if [ -n "$fix" ]; then
@@ -112,3 +118,6 @@ if [ -n "$fix" ]; then
 
 	done <<<"$valid_patches"
 fi
+
+# If there exists files not satisfying linting format, lint fails, exit 1; Else exit 0.
+exit $lint_failed
