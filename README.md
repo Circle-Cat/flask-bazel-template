@@ -19,7 +19,7 @@ git clone "http://review.circlecat.org/flask-bazel-template"
 ### 1. Run the Application
 To run the Flask application locally:
 ```bash
-bazel run //:app
+bazel run //:flask_bazel_sample
 ```
 
 ### 2. Test the Application
